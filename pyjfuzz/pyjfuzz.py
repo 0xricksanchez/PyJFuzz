@@ -21,14 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from .core.pjf_logger import PJFLogger
-from .core import pjf_configuration
 import argparse
 import time
+
+from .core import pjf_configuration
+from .core.pjf_logger import PJFLogger
 
 
 def init_logger():
     return PJFLogger.init_logger()
+
 
 def main():
     logger = init_logger()
@@ -43,7 +45,7 @@ def main():
     group.add_argument('--update', action='store_true', help='Check for updates, and automatically install them',
                        default=False, required=False, dest="update_pjf")
 
-    group.add_argument('--P',  metavar='PROCESS', help='Monitor process for crash', default=False, required=False,
+    group.add_argument('--P', metavar='PROCESS', help='Monitor process for crash', default=False, required=False,
                        dest="process_to_monitor")
     group.add_argument('--J', metavar='JSON', help='Original JSON serialized object',
                        type=pjf_configuration.PJFConfiguration.valid_json, default=None, dest="json")
@@ -51,7 +53,7 @@ def main():
                        default=None, dest="json_file")
 
     group.add_argument('--auto', action='store_true', help='Automatically generate JSON init testcase', dest='auto',
-                        default=False)
+                       default=False)
 
     parser.add_argument('-p', metavar='PARAMS', help='Parameters comma separated', required=False, dest="parameters")
 
@@ -119,6 +121,7 @@ def main():
     pjf_configuration.PJFConfiguration(parser.parse_args()).start()
 
     logger.debug("[{0}] - PyJFuzz successfully completed".format(time.strftime("%H:%M:%S")))
+
 
 if __name__ == "__main__":
     main()

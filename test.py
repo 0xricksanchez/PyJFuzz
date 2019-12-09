@@ -22,14 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from test import test_pjf_factory
-from test import test_pjf_process_monitor
-from test import test_pjf_mutation
-from test import test_pjf_external_fuzzer
-from test import test_pjf_encoder
 from test import test_pjf_configuration
-from test import test_pjf_server
+from test import test_pjf_encoder
 from test import test_pjf_environment
+from test import test_pjf_external_fuzzer
+from test import test_pjf_factory
+from test import test_pjf_mutation
+from test import test_pjf_process_monitor
+from test import test_pjf_server
 
 if __name__ == "__main__":
     print("PyJFuzz - Test Unit")

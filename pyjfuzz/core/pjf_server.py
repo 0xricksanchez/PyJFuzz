@@ -22,27 +22,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from wsgiref.simple_server import make_server, WSGIRequestHandler
-from bottle import route, run, ServerAdapter, response, request, static_file
-from .pjf_testcase_server import PJFTestcaseServer
-from .errors import PJFBaseException
-from .errors import PJFMissingArgument
-from threading import Thread
-from .pjf_logger import PJFLogger
-from .pjf_factory import PJFFactory
-from .certs import CERT_PATH
 import multiprocessing
+import os
 import signal
-import time
+import socket
 import ssl
 import sys
-import os
-import socket
+import time
+from threading import Thread
+from wsgiref.simple_server import make_server, WSGIRequestHandler
+
+from bottle import route, run, ServerAdapter, response, request, static_file
+
+from .certs import CERT_PATH
+from .errors import PJFBaseException
+from .errors import PJFMissingArgument
+from .pjf_factory import PJFFactory
+from .pjf_logger import PJFLogger
+from .pjf_testcase_server import PJFTestcaseServer
+
 
 class WSGIRefServer(ServerAdapter):
     """
     WSGI based server class using SSL
     """
+
     def run(self, handler):
         class QuietHandler(WSGIRequestHandler):
             def log_request(*args, **kw):
@@ -50,6 +54,7 @@ class WSGIRefServer(ServerAdapter):
 
             def log_error(self, format, *args):
                 pass
+
         self.options['handler_class'] = QuietHandler
         srv = make_server(self.host, self.port, handler, **self.options)
         srv.serve_forever()
@@ -59,6 +64,7 @@ class SSLWSGIRefServer(ServerAdapter):
     """
     WSGI based server class using SSL
     """
+
     def run(self, handler):
         class QuietHandler(WSGIRequestHandler):
             def log_request(*args, **kw):
@@ -66,6 +72,7 @@ class SSLWSGIRefServer(ServerAdapter):
 
             def log_error(self, format, *args):
                 pass
+
         self.options['handler_class'] = QuietHandler
         srv = make_server(self.host, self.port, handler, **self.options)
         srv.socket = ssl.wrap_socket(srv.socket, certfile=CERT_PATH, server_side=True)
@@ -76,6 +83,7 @@ class PJFServer:
     """
     Class used to run both HTTP and HTTPS server using bottle web server
     """
+
     def __init__(self, configuration):
         self.client_queue = multiprocessing.Queue(0)
         self.apply_patch()
@@ -83,10 +91,10 @@ class PJFServer:
         if ["debug", "html", "content_type", "notify", "ports"] not in configuration:
             raise PJFMissingArgument()
         if configuration.debug:
-            print("[\033[92mINFO\033[0m] Starting HTTP ({0}) and HTTPS ({1}) built-in server...".format(
+            print(("[\033[92mINFO\033[0m] Starting HTTP ({0}) and HTTPS ({1}) built-in server...".format(
                 configuration.ports["servers"]["HTTP_PORT"],
                 configuration.ports["servers"]["HTTPS_PORT"]
-            ))
+            )))
         if not configuration.content_type:
             configuration.content_type = False
         if not configuration.content_type:
@@ -117,7 +125,7 @@ class PJFServer:
         try:
             count = 0
             dir_name = "testcase_{0}".format(ip)
-            print("[\033[92mINFO\033[0m] Client {0} seems to not respond anymore, saving testcases".format(ip))
+            print(("[\033[92mINFO\033[0m] Client {0} seems to not respond anymore, saving testcases".format(ip)))
             try:
                 os.mkdir(dir_name)
             except OSError:
@@ -137,7 +145,7 @@ class PJFServer:
             while not end:
                 try:
                     client = self.client_queue.get(timeout=5)
-                    if client == (0,0):
+                    if client == (0, 0):
                         end = True
                     else:
                         if client[0] not in clients:
@@ -158,14 +166,13 @@ class PJFServer:
         except Exception as e:
             raise PJFBaseException(e.message if hasattr(e, "message") else str(e))
 
-
     def stop(self):
         """
         Kill the servers
         """
         os.kill(self.httpd.pid, signal.SIGKILL)
         os.kill(self.httpsd.pid, signal.SIGKILL)
-        self.client_queue.put((0,0))
+        self.client_queue.put((0, 0))
         if self.config.fuzz_web:
             self.request_checker.join()
         self.logger.debug("[{0}] - PJFServer successfully completed".format(time.strftime("%H:%M:%S")))

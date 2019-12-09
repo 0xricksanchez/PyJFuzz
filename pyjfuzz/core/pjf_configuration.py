@@ -21,22 +21,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import os
-import sys
 import json
+import os
 import socket
-from ast import literal_eval
-from .conf import CONF_PATH
+import sys
 from argparse import Namespace
-from .pjf_version import PYJFUZZ_LOGO
-from .pjf_grammar import generate_json
+from ast import literal_eval
+
 from . import GRAMMAR_PATH
+from .conf import CONF_PATH
 from .errors import PJFInvalidType
+from .pjf_grammar import generate_json
+from .pjf_version import PYJFUZZ_LOGO
+
 
 class PJFConfiguration(Namespace):
     """
     A class that represent PyJFuzz startup configuration , it makes the standard checks
     """
+
     def __init__(self, arguments):
         """
         Init the command line
@@ -155,17 +158,17 @@ class PJFConfiguration(Namespace):
             worker.start_process_monitor()
 
     def check_ports(self, ports):
-            for p in ports["servers"]:
-                try:
-                    p_checker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    p_checker.bind(("127.0.0.1", ports["servers"][p]))
-                    p_checker.close()
-                except socket.error as e:
-                    if e.errno == 48:
-                        print("[\033[92mINFO\033[0m] Port %s is already in use switching to different port" %
-                              ports["servers"][p])
-                        ports["servers"][p] = self.get_free_port()
-            return ports
+        for p in ports["servers"]:
+            try:
+                p_checker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                p_checker.bind(("127.0.0.1", ports["servers"][p]))
+                p_checker.close()
+            except socket.error as e:
+                if e.errno == 48:
+                    print(("[\033[92mINFO\033[0m] Port %s is already in use switching to different port" %
+                           ports["servers"][p]))
+                    ports["servers"][p] = self.get_free_port()
+        return ports
 
     def get_free_port(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

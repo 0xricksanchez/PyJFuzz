@@ -22,14 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import os
-import time
-import subprocess
-import signal
 import shlex
+import signal
+import subprocess
+import time
 from subprocess import PIPE
+
+from .errors import PJFMissingArgument, PJFBaseException, PJFProcessExecutionError
 from .pjf_executor import PJFExecutor
 from .pjf_testcase_server import PJFTestcaseServer
-from .errors import PJFMissingArgument ,PJFBaseException, PJFProcessExecutionError
+
 
 class PJFProcessMonitor(PJFTestcaseServer, PJFExecutor):
     """ Represent a class used to start and monitor a single process """
@@ -47,9 +49,9 @@ class PJFProcessMonitor(PJFTestcaseServer, PJFExecutor):
         self.testcase_count = 0
         if self.config.debug:
             print("[\033[92mINFO\033[0m] Starting process monitoring...")
-            print("[\033[92mINFO\033[0m] Starting Testcase Server ({0})...".format(
+            print(("[\033[92mINFO\033[0m] Starting Testcase Server ({0})...".format(
                 self.config.ports["servers"]["TCASE_PORT"]
-            ))
+            )))
         super(PJFProcessMonitor, self).__init__(configuration)
         self.logger.debug("[{0}] - PJFProcessMonitor successfully completed".format(time.strftime("%H:%M:%S")))
 
@@ -112,7 +114,8 @@ class PJFProcessMonitor(PJFTestcaseServer, PJFExecutor):
                 self.process.wait()
                 if self._is_sigsegv(self.process.returncode):
                     if self.config.debug:
-                        print("[\033[92mINFO\033[0m] Process crashed with \033[91mSIGSEGV\033[0m, waiting for testcase...")
+                        print(
+                            "[\033[92mINFO\033[0m] Process crashed with \033[91mSIGSEGV\033[0m, waiting for testcase...")
                     while not self.got_testcase():
                         time.sleep(1)
                     self.save_testcase(self.testcase[-10:])  # just take last 10 testcases

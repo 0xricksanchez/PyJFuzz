@@ -21,18 +21,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import sys
+
 
 class PJFBaseException(Exception):
-
     err_type = "ERROR"
 
     def __str__(self):
-        if not hasattr(self,"message"):
+        if not hasattr(self, "message"):
             self.message = self.args[0]
         self.__class__.__module__ = "[\033[91m%s\033[0m]: %s" % (self.err_type, self.message)
         self.__class__.__name__ = ""
         return ""
+
 
 class PJFEnvironmentError(PJFBaseException):
     """
@@ -40,11 +40,13 @@ class PJFEnvironmentError(PJFBaseException):
     """
     err_type = "ENVIRONMENT ERROR"
 
+
 class PJFProcessError(PJFBaseException):
     """
     Environment error e.g. missing dependencies
     """
     err_type = "PROCESS ERROR"
+
 
 class PJFMissingDependency(PJFEnvironmentError):
     """
@@ -52,11 +54,13 @@ class PJFMissingDependency(PJFEnvironmentError):
     """
     err_type = "MISSING DEPENDENCY"
 
+
 class PJFInvalidArgument(PJFBaseException):
     """
     Invalid argument passed to PyJFuzz
     """
     err_type = "INVALID ARGUMENT"
+
 
 class PJFInvalidJSON(PJFBaseException):
     """
@@ -64,11 +68,13 @@ class PJFInvalidJSON(PJFBaseException):
     """
     err_type = "INVALID JSON"
 
+
 class PJFSocketError(PJFBaseException):
     """
     Socket issue
     """
     err_type = "SOCKET ERROR"
+
 
 class PJFMissingArgument(PJFInvalidArgument):
     """
@@ -99,6 +105,7 @@ class PJFProcessExecutionError(PJFProcessError):
     """
     Error during process execution
     """
+
 
 class PJFMalformedJSON(PJFInvalidJSON):
     """

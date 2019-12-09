@@ -21,20 +21,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from .pjf_version import PYJFUZZ_VERSION
-from distutils.version import StrictVersion
-from git import Repo
 import subprocess
-import tempfile
 import sys
+import tempfile
+from distutils.version import StrictVersion
+
+from git import Repo
+
+from .pjf_version import PYJFUZZ_VERSION
+
 if sys.version_info >= (3, 0):
     import urllib.parse
     import http.client
 else:
-    import urlparse
-    import httplib
+    import urllib.parse
+    import http.client
 import shutil
 import os
+
 
 class PJFUpdater:
 
@@ -51,22 +55,22 @@ class PJFUpdater:
                 if sys.version_info >= (3, 0):
                     proxy = urllib.parse.urlparse(os.environ["HTTP_PROXY"])
                 else:
-                    proxy = urlparse.urlparse(os.environ["HTTP_PROXY"])
+                    proxy = urllib.parse.urlparse(os.environ["HTTP_PROXY"])
             else:
                 if sys.version_info >= (3, 0):
                     proxy = urllib.parse.urlparse(os.environ["HTTPS_PROXY"])
                 else:
-                    proxy = urlparse.urlparse(os.environ["HTTPS_PROXY"])
+                    proxy = urllib.parse.urlparse(os.environ["HTTPS_PROXY"])
             if sys.version_info >= (3, 0):
                 conn = http.client.HTTPSConnection(proxy.hostname, proxy.port)
             else:
-                conn = httplib.HTTPSConnection(proxy.hostname, proxy.port)
+                conn = http.client.HTTPSConnection(proxy.hostname, proxy.port)
             conn.set_tunnel(self.version_host, 443)
         else:
             if sys.version_info >= (3, 0):
                 conn = http.client.HTTPSConnection("raw.githubusercontent.com")
             else:
-                conn = httplib.HTTPSConnection("raw.githubusercontent.com")
+                conn = http.client.HTTPSConnection("raw.githubusercontent.com")
         conn.request("GET", self.version_url)
         version = conn.getresponse().read()
         try:
@@ -79,7 +83,7 @@ class PJFUpdater:
 
     def install(self, version):
         subprocess.Popen(["python", "{0}/setup.py".format(self.tmp_dir), "install"]).wait()
-        proc = subprocess.Popen(["python","-c","from pyjfuzz.lib import PYJFUZZ_VERSION; print(PYJFUZZ_VERSION),"],
+        proc = subprocess.Popen(["python", "-c", "from pyjfuzz.lib import PYJFUZZ_VERSION; print(PYJFUZZ_VERSION),"],
                                 stdout=subprocess.PIPE)
         proc.wait()
         v = proc.stdout.read().replace("\n", "")
@@ -105,4 +109,3 @@ class PJFUpdater:
             print("[\033[92mINFO\033[0m] You've got already the last version :)")
         shutil.rmtree(self.tmp_dir)
         return False
-

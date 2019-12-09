@@ -23,6 +23,7 @@ SOFTWARE.
 """
 from .pjf_decoretors import PJFDecorators
 
+
 class PJFMutation(object):
     """
     A class that represent a Mutation object used to mutate different types
@@ -41,4 +42,5 @@ class PJFMutation(object):
         @decorators.mutate_object_decorate
         def mutate():
             return obj
+
         return mutate()

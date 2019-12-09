@@ -21,12 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import unittest
+from argparse import Namespace
+
 from pyjfuzz.core.pjf_configuration import PJFConfiguration
 from pyjfuzz.core.pjf_factory import PJFFactory
-from argparse import Namespace
-import unittest
 
 __TITLE__ = "Testing PJFFactory Object"
+
 
 class TestPJFFactory(unittest.TestCase):
 
@@ -44,7 +46,7 @@ class TestPJFFactory(unittest.TestCase):
     def test_object_equal(self):
         json = PJFFactory(PJFConfiguration(Namespace(utf8=False, url_encode=False, parameters=None, strong_fuzz=False,
                                                      json={"a": 1}, nologo=True, techniques="CHPTRSX")))
-        self.assertEquals(json, {"a": 1})
+        self.assertEqual(json, {"a": 1})
         self.assertNotEqual(json, {"a": 0})
 
     def test_object_contains(self):
@@ -67,21 +69,21 @@ class TestPJFFactory(unittest.TestCase):
 
     def test_object_fuzz(self):
         json = PJFFactory(PJFConfiguration(Namespace(utf8=False, url_encode=False, parameters=None, strong_fuzz=False,
-                                                     json={"a": "\xf0aaaaaaa"}, command=["radamsa"], stdin=True, level=6,
+                                                     json={"a": "\xf0aaaaaaa"}, command=["radamsa"], stdin=True,
+                                                     level=6,
                                                      indent=True, nologo=True)))
         self.assertTrue(json.fuzzed)
 
     def test_object_parameters(self):
-        json = PJFFactory(PJFConfiguration(Namespace(parameters="d", json={"a": [{"b" : "c"}, "abcd"]}, nologo=True, level=6)))
+        json = PJFFactory(
+            PJFConfiguration(Namespace(parameters="d", json={"a": [{"b": "c"}, "abcd"]}, nologo=True, level=6)))
         self.assertTrue(json != json.fuzzed)
         self.assertTrue("abcd" in json.fuzzed)
 
 
-
 def test():
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     print(__TITLE__)
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPJFFactory)
     unittest.TextTestRunner(verbosity=2).run(suite)
-

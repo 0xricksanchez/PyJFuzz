@@ -25,6 +25,7 @@ import unittest
 
 __TITLE__ = "Testing Environment"
 
+
 class TestEnvironment(unittest.TestCase):
 
     def test_bottle_dependency(self):
@@ -34,10 +35,10 @@ class TestEnvironment(unittest.TestCase):
             self.assertTrue(False)
         self.assertTrue(True)
 
+
 def test():
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     print(__TITLE__)
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     suite = unittest.TestLoader().loadTestsFromTestCase(TestEnvironment)
     unittest.TextTestRunner(verbosity=2).run(suite)
-

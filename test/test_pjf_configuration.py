@@ -21,13 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from pyjfuzz.core.pjf_configuration import PJFConfiguration
-import unittest
 import argparse
 import sys
+import unittest
 
+from pyjfuzz.core.pjf_configuration import PJFConfiguration
 
 __TITLE__ = "Testing PJFConfiguration object"
+
 
 class TestPJFConfiguration(unittest.TestCase):
 
@@ -45,9 +46,8 @@ class TestPJFConfiguration(unittest.TestCase):
 
 
 def test():
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     print(__TITLE__)
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPJFConfiguration)
     unittest.TextTestRunner(verbosity=2).run(suite)
-

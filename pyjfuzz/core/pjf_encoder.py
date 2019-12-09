@@ -21,10 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from string import printable as p
 import json
-import sys
 import re
+import sys
+from string import printable as p
+
 
 class PJFEncoder(object):
     """
@@ -36,6 +37,7 @@ class PJFEncoder(object):
         """
         Decorator used to change the return value from PJFFactory.fuzzed, it makes the structure printable
         """
+
         def func_wrapper(self, indent, utf8):
             if utf8:
                 encoding = "\\x%02x"
@@ -87,12 +89,13 @@ class PJFEncoder(object):
                 else:
                     for encoded in unicode_regex.findall(tmp):
                         tmp = tmp.replace(encoded, encoded.decode("unicode_escape"))
-                    return unicode(tmp)
+                    return str(tmp)
 
             def encode(x):
                 for encoded in hex_regex.findall(x):
                     if sys.version_info >= (3, 0):
-                        x = x.replace(encoded, bytes(str(encoded).replace("\\\\x", "\\x"),"utf-8").decode("unicode_escape"))
+                        x = x.replace(encoded,
+                                      bytes(str(encoded).replace("\\\\x", "\\x"), "utf-8").decode("unicode_escape"))
                     else:
                         x = x.replace(encoded, str(encoded).replace("\\\\x", "\\x").decode("string_escape"))
                 return x

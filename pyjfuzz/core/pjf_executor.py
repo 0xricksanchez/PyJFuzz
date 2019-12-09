@@ -22,15 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from .errors import PJFInvalidType, PJFProcessExecutionError, PJFBaseException
-from threading import Thread
-from subprocess import PIPE
-from .pjf_logger import PJFLogger
-from select import error
-import subprocess
 import signal
-import time
+import subprocess
 import sys
+import time
+from select import error
+from subprocess import PIPE
+from threading import Thread
+
+from .errors import PJFInvalidType, PJFProcessExecutionError, PJFBaseException
+from .pjf_logger import PJFLogger
+
 
 class PJFExecutor(object):
     """

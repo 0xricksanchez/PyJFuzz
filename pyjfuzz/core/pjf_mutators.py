@@ -21,16 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import random
-import string
-import re
-import struct
 import math
+import random
+import re
+import string
+import struct
 import sys
 
 if sys.version_info >= (3, 0):
     long = int
-    unicode = str
+    str = str
 
 
 class PJFMutators(object):
@@ -77,7 +77,7 @@ class PJFMutators(object):
             1: lambda x: -x,
             2: lambda x: "%s" % x,
             3: lambda x: float(int(round(x, 0)) | 0xff),
-            4: lambda x: float(random.randint(-2147483647, 2147483647)*0.1),
+            4: lambda x: float(random.randint(-2147483647, 2147483647) * 0.1),
             5: lambda x: bool(round(x, 0)),
             6: lambda x: float(int(round(x, 0)) | 0xff000000)
         }
@@ -97,7 +97,7 @@ class PJFMutators(object):
             bool: self.boolean_mutator,
             int: self.int_mutator,
             float: self.float_mutator,
-            long: self.int_mutator,
+            int: self.int_mutator,
             type(None): self.null_mutator,
         }
 
@@ -134,7 +134,7 @@ class PJFMutators(object):
         """
         Get a random mutator for the given type
         """
-        if obj_type == unicode:
+        if obj_type == str:
             obj_type = str
             obj = str(obj)
         return self._get_random(obj_type)(obj)
@@ -151,7 +151,7 @@ class PJFMutators(object):
         """
         buf = list(obj)
         FuzzFactor = random.randrange(1, len(buf))
-        numwrites=random.randrange(math.ceil((float(len(buf)) / FuzzFactor)))+1
+        numwrites = random.randrange(math.ceil((float(len(buf)) / FuzzFactor))) + 1
         for j in range(numwrites):
             self.random_action(buf)
         return self.safe_unicode(buf)
@@ -162,7 +162,7 @@ class PJFMutators(object):
         """
         action = random.choice([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         if len(b) >= 3:
-            pos = random.randint(0, len(b)-2)
+            pos = random.randint(0, len(b) - 2)
             if action == 1:
                 rbyte = random.randrange(256)
                 rn = random.randrange(len(b))
@@ -176,16 +176,16 @@ class PJFMutators(object):
             elif action == 3:
                 n = random.choice([1, 2, 4])
                 for _ in range(0, n):
-                    if len(b) > pos+1:
+                    if len(b) > pos + 1:
                         tmp = b[pos]
-                        b[pos] = b[pos+1]
-                        b[pos+1] = tmp
+                        b[pos] = b[pos + 1]
+                        b[pos + 1] = tmp
                         pos += 1
                     else:
                         pos -= 2
                         tmp = b[pos]
-                        b[pos] = b[pos+1]
-                        b[pos+1] = tmp
+                        b[pos] = b[pos + 1]
+                        b[pos + 1] = tmp
                         pos += 1
             elif action in [4, 5]:
                 op = {
@@ -193,8 +193,8 @@ class PJFMutators(object):
                     5: lambda x, y: ord(x) >> y,
                 }
                 n = random.choice([1, 2, 4])
-                if len(b) < pos+n:
-                    pos = len(b) - (pos+n)
+                if len(b) < pos + n:
+                    pos = len(b) - (pos + n)
                 if n == 1:
                     f = "<B"
                     s = op[action](b[pos], n) % 0xff
@@ -211,9 +211,9 @@ class PJFMutators(object):
                     b[pos] = v
                     pos += 1
             elif action == 6:
-                b.insert(random.randint(0, len(b)-1), random.choice(["\"", "[", "]", "+", "-", "}", "{"]))
+                b.insert(random.randint(0, len(b) - 1), random.choice(["\"", "[", "]", "+", "-", "}", "{"]))
             elif action == 7:
-                del b[random.randint(0, len(b)-1)]
+                del b[random.randint(0, len(b) - 1)]
             elif action in [8, 9]:
                 block = random.choice([
                     (r"\"", r"\""),
@@ -243,8 +243,8 @@ class PJFMutators(object):
                 block_re = re.compile("(\-?[0-9]+)")
                 if block_re.search(b_str):
                     block = random.choice([m for m in block_re.finditer(b_str)])
-                    new = b_str[0:block.start()] + str(int(block.group())*limit_choice) + b_str[block.start() +
-                                                                                                len(block.group()):]
+                    new = b_str[0:block.start()] + str(int(block.group()) * limit_choice) + b_str[block.start() +
+                                                                                                  len(block.group()):]
                     b[:] = list(new)
 
     def safe_join(self, buf):

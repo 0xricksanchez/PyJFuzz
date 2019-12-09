@@ -22,16 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from gramfuzz import *
 import json
+
 
 def generate_json(path):
     grammar = GramFuzzer()
     grammar.load_grammar(path)
     for x in grammar.gen(cat="json", num=10, max_recursion=10):
-            if x not in ["{}", "[]"]:
-                j = json.loads(x)
-                del grammar
-                return j
+        if x not in ["{}", "[]"]:
+            j = json.loads(x)
+            del grammar
+            return j
     return {"dummy": 1}
-

@@ -21,19 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import subprocess
-from setuptools import setup
-from glob import glob
-import sys
 import os
+import subprocess
+import sys
+from glob import glob
+
+from setuptools import setup
 
 
 def find_all_files_in_subdir(start_dir):
     files = []
     pattern = "*.*"
-    for dir,_,_ in os.walk(start_dir):
-        files.extend(glob(os.path.join(dir,pattern)))
+    for dir, _, _ in os.walk(start_dir):
+        files.extend(glob(os.path.join(dir, pattern)))
     return files
+
 
 def get_package_data():
     data = ['core/certs/server.pem', 'core/conf/config.json']
@@ -43,16 +45,17 @@ def get_package_data():
     os.chdir(cur_dir)
     return data
 
+
 def install_gramfuzz():
     cur_dir = os.getcwd()
     os.chdir("gramfuzz")
-    subprocess.Popen(["python" ,os.getcwd()+os.sep+"setup.py", "install"]).wait()
+    subprocess.Popen(["python", os.getcwd() + os.sep + "setup.py", "install"]).wait()
     os.chdir(cur_dir)
+
 
 install_gramfuzz()
 
-
-requires=['bottle', 'GitPython']
+requires = ['bottle', 'GitPython']
 
 if sys.version_info < (2, 7):
     # support for python 2.6
@@ -78,10 +81,9 @@ setup(
     package_data={'pyjfuzz': get_package_data()
                   },
     entry_points={
-            'console_scripts': [
-                'pjf=pyjfuzz.pyjfuzz:main',
-            ],
+        'console_scripts': [
+            'pjf=pyjfuzz.pyjfuzz:main',
+        ],
     },
     install_requires=requires,
 )
-

@@ -24,10 +24,12 @@ SOFTWARE.
 
 from .pjf_mutators import PJFMutators
 
+
 class PJFDecorators(object):
     """
     Represent a class with all available decorators used to fuzz types
     """
+
     def __init__(self, configuration):
         self.Mutators = PJFMutators(configuration)
 
@@ -35,7 +37,9 @@ class PJFDecorators(object):
         """
         Mutate a generic object based on type
         """
+
         def mutate():
             obj = func()
             return self.Mutators.get_mutator(obj, type(obj))
+
         return mutate

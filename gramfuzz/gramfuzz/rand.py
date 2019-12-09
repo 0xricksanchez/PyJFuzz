@@ -13,9 +13,7 @@ such as:
 * return random data
 """
 
-
 import random as r
-
 
 RANDOM = r.Random()
 _randint = RANDOM.randint
@@ -42,9 +40,9 @@ def randint(a, b=None):
     """
     # need to minus 1 b/c randint has an inclusive maximum
     if b is None:
-        return _randint(0, a-1)
+        return _randint(0, a - 1)
     else:
-        return _randint(a, b-1)
+        return _randint(a, b - 1)
 
 
 def randfloat(a, b=None):

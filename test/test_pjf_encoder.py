@@ -21,15 +21,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from pyjfuzz.core.pjf_encoder import PJFEncoder
 import unittest
 
+from pyjfuzz.core.pjf_encoder import PJFEncoder
+
 __TITLE__ = "Testing PJFEncoder"
+
 
 class TestPJFEncoder(unittest.TestCase):
 
     def test_encode_object(self):
-
         def encode():
             return encode_json(None, True, False)
 
@@ -39,11 +40,10 @@ class TestPJFEncoder(unittest.TestCase):
 
         self.assertTrue(encode())
 
+
 def test():
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     print(__TITLE__)
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPJFEncoder)
     unittest.TextTestRunner(verbosity=2).run(suite)
-
-

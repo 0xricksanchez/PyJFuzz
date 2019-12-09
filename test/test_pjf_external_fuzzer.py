@@ -21,13 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from pyjfuzz.core.pjf_external_fuzzer import PJFExternalFuzzer
-from pyjfuzz.core.pjf_configuration import PJFConfiguration
-from argparse import Namespace
-import unittest
 import os
+import unittest
+from argparse import Namespace
+
+from pyjfuzz.core.pjf_configuration import PJFConfiguration
+from pyjfuzz.core.pjf_external_fuzzer import PJFExternalFuzzer
 
 __TITLE__ = "Testing PJFExternalFuzzer object"
+
 
 class TestPJFExternalFuzzer(unittest.TestCase):
 
@@ -37,7 +39,7 @@ class TestPJFExternalFuzzer(unittest.TestCase):
         self.assertTrue(len(mutated) > 0)
 
     def test_file_mutation(self):
-        external_fuzzer = PJFExternalFuzzer(PJFConfiguration(Namespace(nologo=True, command=["radamsa","@@"],
+        external_fuzzer = PJFExternalFuzzer(PJFConfiguration(Namespace(nologo=True, command=["radamsa", "@@"],
                                                                        stdin=False)))
         with file("test.json", "wb") as json_file:
             json_file.write('{"a": 1}')
@@ -49,9 +51,10 @@ class TestPJFExternalFuzzer(unittest.TestCase):
             self.assertTrue(len(content) > 0)
         os.unlink("test.json")
 
+
 def test():
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     print(__TITLE__)
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPJFExternalFuzzer)
     unittest.TextTestRunner(verbosity=2).run(suite)

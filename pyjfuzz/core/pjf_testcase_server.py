@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import sys
-import time
-import threading
-import struct
 import socket
-from .pjf_logger import PJFLogger
+import struct
+import threading
+import time
+
 from .errors import PJFMissingArgument, PJFBaseException, PJFSocketError
+from .pjf_logger import PJFLogger
 
 
 class PJFTestcaseServer(object):
@@ -61,7 +61,7 @@ class PJFTestcaseServer(object):
         except socket.error as e:
             raise PJFSocketError(e.message if hasattr(e, "message") else str(e))
         except Exception as e:
-            raise  PJFBaseException(e.message)
+            raise PJFBaseException(e.message)
 
     def _shutdown(self, *args):
         """
@@ -130,4 +130,4 @@ class PJFTestcaseServer(object):
         except socket.error as e:
             raise PJFSocketError(e.message if hasattr(e, "message") else str(e))
         except Exception as e:
-            raise  PJFBaseException(e.message)
+            raise PJFBaseException(e.message)

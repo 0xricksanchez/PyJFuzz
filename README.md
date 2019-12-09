@@ -1,3 +1,5 @@
+## Note: This fork of PyJFuzz was made python3 compatible
+
 
 [![LOGO](https://s30.postimg.org/iolw8xqn5/logo.png)](https://s30.postimg.org/iolw8xqn5/logo.png)
 =======

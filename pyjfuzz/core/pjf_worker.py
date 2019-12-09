@@ -21,21 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import json as json_eval
+import os
+import socket
+import sys
+import tempfile
+import time
+from argparse import Namespace
+
 from .errors import PJFBaseException
-from .pjf_updater import PJFUpdater
+from .errors import PJFMalformedJSON
 from .pjf_configuration import PJFConfiguration
-from .pjf_server import PJFServer
+from .pjf_external_fuzzer import PJFExternalFuzzer
 from .pjf_factory import PJFFactory
 from .pjf_process_monitor import PJFProcessMonitor
-from .pjf_external_fuzzer import PJFExternalFuzzer
-from .errors import PJFMalformedJSON
-from argparse import Namespace
-import socket
-import tempfile
-import json as json_eval
-import time
-import sys
-import os
+from .pjf_server import PJFServer
+from .pjf_updater import PJFUpdater
+
 
 class PJFWorker(object):
 
@@ -68,7 +70,7 @@ class PJFWorker(object):
             server.run()
             try:
                 while True:
-                        monitor.start_monitor(standalone=False)
+                    monitor.start_monitor(standalone=False)
             except KeyboardInterrupt:
                 monitor.shutdown()
                 server.stop()
@@ -101,10 +103,10 @@ class PJFWorker(object):
             server.run()
             print("[\033[92mINFO\033[0m] Available URLs")
             for url in self.get_urls():
-                print("[\033[92m*\033[0m] {0}".format(url))
+                print(("[\033[92m*\033[0m] {0}".format(url)))
             try:
                 while True:
-                        time.sleep(1)
+                    time.sleep(1)
             except KeyboardInterrupt:
                 server.stop()
         except Exception as e:
@@ -115,7 +117,7 @@ class PJFWorker(object):
             ip = ([l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not
             ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in
                                           [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0])
-            yield "http://{0}:{1}/fuzzer.html".format(ip,self.config.ports["servers"]["HTTP_PORT"])
+            yield "http://{0}:{1}/fuzzer.html".format(ip, self.config.ports["servers"]["HTTP_PORT"])
         except Exception as e:
             raise PJFBaseException(e.message if hasattr(e, "message") else str(e))
 
@@ -126,22 +128,22 @@ class PJFWorker(object):
             raise PJFBaseException(e.message if hasattr(e, "message") else str(e))
 
     def start_file_fuzz(self):
-            with open(self.config.json_file, "rb") as json_file:
-                j = json_file.read()
-                json = None
-                try:
-                    if not self.config.strong_fuzz:
-                        setattr(self.config, "json", json_eval.loads(j))
-                        json = PJFFactory(self.config)
-                    else:
-                        setattr(self.config, "json", json_eval.loads(j))
-                        json = PJFFactory(self.config)
-                except:
-                    raise PJFMalformedJSON()
-                json_file.close()
-            if json:
-                with open(self.config.json_file, "wb") as json_file:
-                    json_file.write(json.fuzzed)
+        with open(self.config.json_file, "rb") as json_file:
+            j = json_file.read()
+            json = None
+            try:
+                if not self.config.strong_fuzz:
+                    setattr(self.config, "json", json_eval.loads(j))
+                    json = PJFFactory(self.config)
+                else:
+                    setattr(self.config, "json", json_eval.loads(j))
+                    json = PJFFactory(self.config)
+            except:
+                raise PJFMalformedJSON()
+            json_file.close()
+        if json:
+            with open(self.config.json_file, "wb") as json_file:
+                json_file.write(json.fuzzed)
 
     def start_http_server(self):
         try:
@@ -149,7 +151,7 @@ class PJFWorker(object):
             server.run()
             try:
                 while True:
-                        time.sleep(1)
+                    time.sleep(1)
             except KeyboardInterrupt:
                 server.stop()
         except Exception as e:
@@ -162,7 +164,7 @@ class PJFWorker(object):
                 temp_file.close()
                 setattr(self, "temp_file_name", temp_file.name)
                 if self.config.debug:
-                    print("[\033[92mINFO\033[0m] Generated temp file \033[91m%s\033[0m" % self.config.temp_file_name)
+                    print(("[\033[92mINFO\033[0m] Generated temp file \033[91m%s\033[0m" % self.config.temp_file_name))
             result = PJFExternalFuzzer(self.config).execute(self.config.temp_file_name)
             with open(self.config.temp_file_name, "wb") as fuzzed:
                 fuzzed.write(result)
@@ -204,13 +206,14 @@ class PJFWorker(object):
                     temp_file.close()
                     setattr(self.config, "temp_file_name", temp_file.name)
                 if self.config.debug:
-                    print("[\033[92mINFO\033[0m] Generated temp file \033[91m%s\033[0m" % self.config.temp_file_name)
+                    print(("[\033[92mINFO\033[0m] Generated temp file \033[91m%s\033[0m" % self.config.temp_file_name))
                 result = PJFExternalFuzzer(self.config).execute_sigsegv(self.config.temp_file_name)
             else:
                 setattr(self.config, "temp_file_name", False)
                 result = PJFExternalFuzzer(self.config).execute_sigsegv(j_fuzz)
             if result:
-                print("[\033[92mINFO\033[0m] Program crashed with \033[91mSIGSEGV\033[0m/\033[91mSIGABRT\033[0m/\033[91mSIGHUP\033[0m")
+                print(
+                    "[\033[92mINFO\033[0m] Program crashed with \033[91mSIGSEGV\033[0m/\033[91mSIGABRT\033[0m/\033[91mSIGHUP\033[0m")
                 if self.config.debug:
                     print("[\033[92mINFO\033[0m] Saving testcase...")
                 try:

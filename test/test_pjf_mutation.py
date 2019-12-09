@@ -21,12 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import unittest
+from argparse import Namespace
+
 from pyjfuzz.core.pjf_configuration import PJFConfiguration
 from pyjfuzz.core.pjf_mutation import PJFMutation
-from argparse import Namespace
-import unittest
 
 __TITLE__ = "Testing PJFMutation object"
+
 
 class TestPJFMutation(unittest.TestCase):
 
@@ -55,10 +57,10 @@ class TestPJFMutation(unittest.TestCase):
             PJFMutation(PJFConfiguration(Namespace(nologo=True, command="radamsa", stdin=True, level=6))).fuzz(None)
             raise Exception
 
+
 def test():
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     print(__TITLE__)
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPJFMutation)
     unittest.TextTestRunner(verbosity=2).run(suite)
-

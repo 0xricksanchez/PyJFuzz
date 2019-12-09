@@ -21,18 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from .errors import PJFInvalidType, PJFMissingArgument, PJFBaseException
-from .pjf_mutators import PJFMutators
-from .pjf_mutation import PJFMutation
-from .pjf_encoder import PJFEncoder
-from .pjf_logger import PJFLogger
-import time
 import json
 import sys
+import time
+
+from .errors import PJFInvalidType, PJFMissingArgument, PJFBaseException
+from .pjf_encoder import PJFEncoder
+from .pjf_logger import PJFLogger
+from .pjf_mutation import PJFMutation
+from .pjf_mutators import PJFMutators
+
 if sys.version_info >= (3, 0):
     import urllib.request, urllib.parse, urllib.error
 else:
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
+
 
 class PJFFactory(object):
 
@@ -42,7 +45,7 @@ class PJFFactory(object):
         """
         self.logger = self.init_logger()
         if ["json", "json_file", "strong_fuzz", "parameters", "exclude_parameters", "url_encode", "indent",
-                "utf8"] not in configuration:
+            "utf8"] not in configuration:
             raise PJFMissingArgument("Some arguments are missing from PJFFactory object")
 
         self.config = configuration
@@ -188,7 +191,7 @@ class PJFFactory(object):
                     if sys.version_info >= (3, 0):
                         return urllib.parse.quote(fuzzer.fuzz(json.dumps(self.config.json)))
                     else:
-                        return urllib.quote(fuzzer.fuzz(json.dumps(self.config.json)))
+                        return urllib.parse.quote(fuzzer.fuzz(json.dumps(self.config.json)))
                 else:
                     if type(self.config.json) in [list, dict]:
                         return fuzzer.fuzz(json.dumps(self.config.json))
@@ -199,7 +202,7 @@ class PJFFactory(object):
                     if sys.version_info >= (3, 0):
                         return urllib.parse.quote(self.get_fuzzed(self.config.indent, self.config.utf8))
                     else:
-                        return urllib.quote(self.get_fuzzed(self.config.indent, self.config.utf8))
+                        return urllib.parse.quote(self.get_fuzzed(self.config.indent, self.config.utf8))
                 else:
                     return self.get_fuzzed(self.config.indent, self.config.utf8)
         except Exception as e:

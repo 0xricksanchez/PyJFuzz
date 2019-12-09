@@ -6,7 +6,6 @@
 Gramfuzz utility functions
 """
 
-
 import gramfuzz
 
 

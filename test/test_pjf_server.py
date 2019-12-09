@@ -21,28 +21,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from pyjfuzz.core.pjf_configuration import PJFConfiguration
-from argparse import Namespace
 import time
 import unittest
-import urllib2
+import urllib.error
+import urllib.parse
+import urllib.request
+from argparse import Namespace
 
-
+from pyjfuzz.core.pjf_configuration import PJFConfiguration
 from pyjfuzz.core.pjf_server import PJFServer
 
 __TITLE__ = "Testing PJFFServer Object"
 
+
 class TestPJFServer(unittest.TestCase):
 
     def test_start_object(self):
-        server = PJFServer(configuration=PJFConfiguration(Namespace(ports={"servers": {"HTTP_PORT": 8080, "HTTPS_PORT": 8443}},
-                                                   html=False, level=6, command=["radamsa"], stdin=True,
-                                                   json={"a": "test"}, indent=True, strong_fuzz=False, url_encode=False,
-                                                   parameters=[], notify=False, debug=False, content_type="text/plain",
-                                                                    utf8=False, nologo=True)))
+        server = PJFServer(
+            configuration=PJFConfiguration(Namespace(ports={"servers": {"HTTP_PORT": 8080, "HTTPS_PORT": 8443}},
+                                                     html=False, level=6, command=["radamsa"], stdin=True,
+                                                     json={"a": "test"}, indent=True, strong_fuzz=False,
+                                                     url_encode=False,
+                                                     parameters=[], notify=False, debug=False,
+                                                     content_type="text/plain",
+                                                     utf8=False, nologo=True)))
         server.run()
         time.sleep(2)
-        json_http = urllib2.urlopen("http://127.0.0.1:8080").read()
+        json_http = urllib.request.urlopen("http://127.0.0.1:8080").read()
         try:
             import requests
             requests.packages.urllib3.disable_warnings()
@@ -55,9 +60,8 @@ class TestPJFServer(unittest.TestCase):
 
 
 def test():
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     print(__TITLE__)
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPJFServer)
     unittest.TextTestRunner(verbosity=2).run(suite)
-

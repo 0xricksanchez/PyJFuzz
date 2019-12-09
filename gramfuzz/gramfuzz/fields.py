@@ -20,17 +20,15 @@ Each field has a ``build()`` method, which accepts one argument
 (``pre``) that can be used to assign prerequisites of the build result.
 """
 
-
-from collections import deque
-import json
 import inspect
 import os
+from collections import deque
 
-
-from gramfuzz import GramFuzzer
 import gramfuzz.errors as errors
 import gramfuzz.rand as rand
 import gramfuzz.utils as utils
+
+from gramfuzz import GramFuzzer
 
 
 class MetaField(type):
@@ -87,16 +85,15 @@ class MetaField(type):
             return other
         else:
             return Or(self, other, rolling=True)
-    
+
     def __repr__(self):
         return "<{}>".format(self.__name__)
 
-class Field(object):
+
+class Field(object, metaclass=MetaField):
     """The core class that all field classes are based one. Contains
     utility methods to determine probabilities/choices/min-max/etc.
     """
-
-    __metaclass__ = MetaField
 
     shortest_is_nothing = False
     """This is used during :any:`gramfuzz.GramFuzzer.find_shortest_paths`. Sometimes
@@ -160,7 +157,7 @@ class Field(object):
             return other
         else:
             return Or(self, other, rolling=True)
-    
+
     def _odds_val(self):
         """Determine a new random value derived from the
         defined :any:`gramfuzz.fields.Field.odds` value.
@@ -172,14 +169,14 @@ class Field(object):
 
         rand_val = rand.random()
         total = 0
-        for percent,v in self.odds:
-            if total <= rand_val < total+percent:
+        for percent, v in self.odds:
+            if total <= rand_val < total + percent:
                 found_v = v
                 break
             total += percent
 
         res = None
-        if isinstance(v, (tuple,list)):
+        if isinstance(v, (tuple, list)):
             rand_func = rand.randfloat if type(v[0]) is float else rand.randint
 
             if len(v) == 2:
@@ -190,7 +187,7 @@ class Field(object):
             res = v
 
         return res
-    
+
     def __repr__(self):
         res = "<{}".format(self.__class__.__name__)
         if hasattr(self, "values"):
@@ -210,13 +207,13 @@ class Int(Field):
     neg = True
 
     odds = [
-        (0.75,    [0,100]),
-        (0.05,    0),
-        (0.05,    [0x80-2,0x80+2]),
-        (0.05,    [0x100-2,0x100+2]),
-        (0.05,    [0x10000-2, 0x10000+2]),
-        (0.03,    0x80000000),
-        (0.02,    [0x100000000-2, 0x100000000+2])
+        (0.75, [0, 100]),
+        (0.05, 0),
+        (0.05, [0x80 - 2, 0x80 + 2]),
+        (0.05, [0x100 - 2, 0x100 + 2]),
+        (0.05, [0x10000 - 2, 0x10000 + 2]),
+        (0.03, 0x80000000),
+        (0.02, [0x100000000 - 2, 0x100000000 + 2])
     ]
 
     def __init__(self, value=None, **kwargs):
@@ -235,7 +232,7 @@ class Int(Field):
         self.min = kwargs.setdefault("min", self.min)
         self.max = kwargs.setdefault("max", self.max)
         self.odds = kwargs.setdefault("odds", self.odds)
-    
+
     def build(self, pre=None, shortest=False):
         """Build the integer, optionally providing a ``pre`` list
         that *may* be used to define prerequisites for a Field being built.
@@ -263,22 +260,25 @@ class UInt(Int):
     """
     neg = False
 
+
 class Float(Int):
     """Defines a float ``Field`` with odds that define float
     values
     """
     odds = [
-        (0.75,    [0.0,100.0]),
-        (0.05,    0),
-        (0.10,    [100.0, 1000.0]),
-        (0.10,    [1000.0, 100000.0]),
+        (0.75, [0.0, 100.0]),
+        (0.05, 0),
+        (0.10, [100.0, 1000.0]),
+        (0.10, [1000.0, 100000.0]),
     ]
     neg = True
+
 
 class UFloat(Float):
     """Defines an unsigned float field.
     """
     neg = False
+
 
 class String(UInt):
     """Defines a string field
@@ -287,10 +287,10 @@ class String(UInt):
     max = 0x100
 
     odds = [
-        (0.85,    [0,20]),
-        (0.10,    1),
-        (0.025,    0),
-        (0.025,    [20,100]),
+        (0.85, [0, 20]),
+        (0.10, 1),
+        (0.025, 0),
+        (0.025, [20, 100]),
     ]
     """Unlike numeric ``Field`` types, the odds value for the ``String`` field
     defines the *length* of the field, not characters used in the string.
@@ -359,11 +359,12 @@ class String(UInt):
         res = rand.data(length, self.charset)
         return res
 
+
 class Join(Field):
     """A ``Field`` subclass that joins other values with a separator.
     This class works nicely with ``Opt`` values.
     """
-    
+
     sep = ","
 
     def __init__(self, *values, **kwargs):
@@ -381,7 +382,7 @@ class Join(Field):
         self.values = list(values)
         self.sep = kwargs.setdefault("sep", self.sep)
         self.max = kwargs.setdefault("max", None)
-    
+
     def build(self, pre=None, shortest=False):
         """Build the ``Join`` field instance.
         
@@ -397,7 +398,7 @@ class Join(Field):
                 vals = [self.values[0]]
             else:
                 # +1 to make it inclusive
-                vals = [self.values[0]] * rand.randint(1, self.max+1)
+                vals = [self.values[0]] * rand.randint(1, self.max + 1)
         else:
             vals = self.values
 
@@ -428,7 +429,7 @@ class And(Field):
         # to be used internally, is not intended to be set directly by a user
         self.rolling = kwargs.setdefault("rolling", False)
         self.fuzzer = GramFuzzer.instance()
-    
+
     def build(self, pre=None, shortest=False):
         """Build the ``And`` instance
 
@@ -522,7 +523,7 @@ class Or(Field):
         if "options" in kwargs and len(values) == 0:
             self.values = kwargs["options"]
         self.rolling = kwargs.setdefault("rolling", False)
-    
+
     def build(self, pre=None, shortest=False):
         """Build the ``Or`` instance
 
@@ -580,6 +581,7 @@ class Opt(And):
             raise errors.OptGram
 
         return super(Opt, self).build(pre, shortest=shortest)
+
 
 # ----------------------------
 # Non-direct classes
@@ -645,12 +647,12 @@ class Def(Field):
 
         self.fuzzer = GramFuzzer.instance()
 
-        frame,mod_path,_,_,_,_ = inspect.stack()[1]
+        frame, mod_path, _, _, _, _ = inspect.stack()[1]
         module_name = os.path.basename(mod_path).replace(".pyc", "").replace(".py", "")
         if "TOP_CAT" in frame.f_locals:
             self.fuzzer.cat_group_defaults[module_name] = frame.f_locals["TOP_CAT"]
         self.fuzzer.add_definition(self.cat, self.name, self, no_prune=self.no_prune, gram_file=module_name)
-    
+
     def build(self, pre=None, shortest=False):
         """Build this rule definition
         
@@ -679,12 +681,15 @@ class Def(Field):
             except errors.OptGram as e:
                 continue
             except errors.GramFuzzError as e:
-                print("{} : {}".format(self.name, str(e)))
+                print(("{} : {}".format(self.name, str(e))))
                 raise
 
         return self.sep.join(res)
 
+
 REF_LEVEL = 1
+
+
 class Ref(Field):
     """The ``Ref`` class is used to reference defined rules by their name. If a
     rule name is defined multiple times, one will be chosen at random.
@@ -722,7 +727,7 @@ class Ref(Field):
         self.failsafe = kwargs.setdefault("failsafe", self.failsafe)
 
         self.fuzzer = GramFuzzer.instance()
-    
+
     def build(self, pre=None, shortest=False):
         """Build the ``Ref`` instance by fetching the rule from
         the GramFuzzer instance and building it
@@ -737,7 +742,7 @@ class Ref(Field):
             if pre is None:
                 pre = []
 
-            #print("{:04d} - {} - {}:{}".format(REF_LEVEL, shortest, self.cat, self.refname))
+            # print("{:04d} - {} - {}:{}".format(REF_LEVEL, shortest, self.cat, self.refname))
 
             definition = self.fuzzer.get_ref(self.cat, self.refname)
             res = utils.val(
@@ -751,7 +756,7 @@ class Ref(Field):
         # this needs to happen no matter what
         finally:
             REF_LEVEL -= 1
-    
+
     def __repr__(self):
         return "<{}[{}]>".format(self.__class__.__name__, self.refname)
 

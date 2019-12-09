@@ -21,9 +21,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from .pjf_executor import PJFExecutor
-from .errors import PJFMissingArgument, PJFBaseException
 import time
+
+from .errors import PJFMissingArgument, PJFBaseException
+from .pjf_executor import PJFExecutor
 
 
 class PJFExternalFuzzer(PJFExecutor):
@@ -56,7 +57,7 @@ class PJFExternalFuzzer(PJFExecutor):
         """
         try:
             if self.config.stdin:
-                    self.spawn(self.config.command, stdin_content=obj, stdin=True, timeout=1)
+                self.spawn(self.config.command, stdin_content=obj, stdin=True, timeout=1)
             else:
                 if "@@" not in self.config.command:
                     raise PJFMissingArgument("Missing @@ filename indicator while using non-stdin fuzzing method")

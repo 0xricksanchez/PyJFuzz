@@ -21,15 +21,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from pyjfuzz.core.pjf_process_monitor import PJFProcessMonitor
-from pyjfuzz.core.pjf_configuration import PJFConfiguration
-from argparse import Namespace
-from test import TEST_PATH
+import os
 import subprocess
 import unittest
-import os
+from argparse import Namespace
+
+from pyjfuzz.core.pjf_configuration import PJFConfiguration
+from pyjfuzz.core.pjf_process_monitor import PJFProcessMonitor
+from test import TEST_PATH
 
 __TITLE__ = "Testing PJFProcessMonitor object"
+
 
 class TestPJFProcessMonitor(unittest.TestCase):
 
@@ -37,21 +39,21 @@ class TestPJFProcessMonitor(unittest.TestCase):
         os.chdir(TEST_PATH)
         subprocess.Popen(["gcc", "sigsegv.c", "-o", "sigsegv"], stderr=subprocess.PIPE, stdout=subprocess.PIPE).wait()
         crash = PJFProcessMonitor(PJFConfiguration(Namespace(process_to_monitor=["%s/sigsegv" % TEST_PATH], debug=False,
-                                            ports={"servers":
-                                                       {
-                                                           "HTTP_PORT": 8080,
-                                                           "HTTPS_PORT": 8443,
-                                                           "TCASE_PORT": 8888
-                                                       }
-                                            },
+                                                             ports={"servers":
+                                                                 {
+                                                                     "HTTP_PORT": 8080,
+                                                                     "HTTPS_PORT": 8443,
+                                                                     "TCASE_PORT": 8888
+                                                                 }
+                                                             },
                                                              nologo=True))
                                   ).run_and_monitor()
         self.assertTrue(crash)
 
+
 def test():
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     print(__TITLE__)
-    print("=" * len(__TITLE__))
+    print(("=" * len(__TITLE__)))
     suite = unittest.TestLoader().loadTestsFromTestCase(TestPJFProcessMonitor)
     unittest.TextTestRunner(verbosity=2).run(suite)
-

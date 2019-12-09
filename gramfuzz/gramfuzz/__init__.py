@@ -7,18 +7,13 @@ This module defines the main ``GramFuzzer`` class through
 which rules are defined and rules are randomly generated.
 """
 
-
-from collections import deque
-import copy
-import gc
 import os
 import sys
-
+from collections import deque
 
 import gramfuzz.errors as errors
 import gramfuzz.rand as rand
 import gramfuzz.utils as utils
-
 
 __version__ = "1.2.0"
 
@@ -64,6 +59,7 @@ class GramFuzzer(object):
     """
 
     __instance__ = None
+
     @classmethod
     def instance(cls):
         """Return the singleton instance of the ``GramFuzzer``
@@ -71,7 +67,6 @@ class GramFuzzer(object):
         if cls.__instance__ is None:
             cls()
         return cls.__instance__
-
 
     def __init__(self):
         """Create a new ``GramFuzzer`` instance
@@ -94,7 +89,7 @@ class GramFuzzer(object):
 
         # a simple flag to tell if data needs to be auto processed or not
         self._rules_processed = False
-    
+
     def load_grammar(self, path):
         """Load a grammar file (python file containing grammar definitions) by
         file path. When loaded, the global variable ``GRAMFUZZER`` will be set
@@ -104,7 +99,7 @@ class GramFuzzer(object):
         """
         if not os.path.exists(path):
             raise Exception("path does not exist: {!r}".format(path))
-        
+
         # this will let grammars reference eachother with relative
         # imports.
         #
@@ -124,7 +119,7 @@ class GramFuzzer(object):
         code = compile(data, path, "exec")
 
         locals_ = {"GRAMFUZZER": self, "__file__": path}
-        exec(code) in locals_
+        exec((code), locals_)
 
         if "TOP_CAT" in locals_:
             cat_group = os.path.basename(path).replace(".py", "")
@@ -156,8 +151,8 @@ class GramFuzzer(object):
 
         # first find all rule definitions that *don't* have
         # any references - these are the leaf nodes
-        for cat in self.defs.keys():
-            for rule_name, rules in self.defs.get(cat, {}).items():
+        for cat in list(self.defs.keys()):
+            for rule_name, rules in list(self.defs.get(cat, {}).items()):
                 for rule in rules:
                     refs = self._collect_refs(rule)
                     if len(refs) == 0:
@@ -200,7 +195,7 @@ class GramFuzzer(object):
         return non_leaf_rules
 
     def _prune_rules(self, non_leaf_rules):
-        for cat,rule in non_leaf_rules:
+        for cat, rule in non_leaf_rules:
             if cat in self.no_prunes and rule.name in self.no_prunes[cat]:
                 continue
             rule_list = self.defs.get(cat, {}).get(rule.name, [])
@@ -209,7 +204,7 @@ class GramFuzzer(object):
                 del self.defs.get(cat, {})[rule.name]
 
     def _assign_or_shortest_vals(self, fields, rule_ref_lengths):
-        for cat,field in fields:
+        for cat, field in fields:
             self._process_shortest_ref(cat, field, rule_ref_lengths, assign_or=True)
 
     def _process_shortest_ref(self, cat, field, rule_ref_lengths, assign_or=False):
@@ -228,7 +223,7 @@ class GramFuzzer(object):
                     cat,
                     val,
                     rule_ref_lengths,
-                    assign_or = assign_or,
+                    assign_or=assign_or,
                 )
                 if val_ref is None:
                     continue
@@ -259,7 +254,7 @@ class GramFuzzer(object):
                     cat,
                     val,
                     rule_ref_lengths,
-                    assign_or = assign_or,
+                    assign_or=assign_or,
                 )
                 if ref_val_length is None:
                     return None
@@ -284,7 +279,7 @@ class GramFuzzer(object):
             # any references, don't increment the value
             if ref_val == 0 and len(self._collect_refs(ref_rule_val)) == 0:
                 return 0
-                
+
             # add one if the reference value is more than 0
             return ref_val + 1
 
@@ -307,11 +302,11 @@ class GramFuzzer(object):
                 self._collect_refs(val, acc)
 
         return acc
-    
+
     # --------------------------------------
     # public, but intended for internal use
     # --------------------------------------
-    
+
     def add_definition(self, cat, def_name, def_val, no_prune=False, gram_file="default"):
         """Add a new rule definition named ``def_name`` having value ``def_value`` to
         the category ``cat``.
@@ -346,7 +341,7 @@ class GramFuzzer(object):
         :param str top_level_cat: The top-level (default) category of the cat group
         """
         self.cat_group_defaults[cat_group] = top_level_cat
-    
+
     def add_to_cat_group(self, cat, cat_group, def_name):
         """Associate the provided rule definition name ``def_name`` with the
         category group ``cat_group`` in the category ``cat``.
@@ -356,7 +351,7 @@ class GramFuzzer(object):
         :param str def_name: The name of the rule definition
         """
         self.cat_groups.setdefault(cat, {}).setdefault(cat_group, deque()).append(def_name)
-    
+
     def get_ref(self, cat, refname):
         """Return one of the rules in the category ``cat`` with the name
         ``refname``. If multiple rule defintions exist for the defintion name
@@ -369,17 +364,17 @@ class GramFuzzer(object):
         """
         if cat not in self.defs:
             raise errors.GramFuzzError("referenced definition category ({!r}) not defined".format(cat))
-        
+
         if refname == "*":
-            refname = rand.choice(self.defs[cat].keys())
-            
+            refname = rand.choice(list(self.defs[cat].keys()))
+
         if refname not in self.defs[cat]:
             raise errors.GramFuzzError("referenced definition ({!r}) not defined".format(refname))
 
         return rand.choice(self.defs[cat][refname])
 
-
-    def gen(self, num, cat=None, cat_group=None, preferred=None, preferred_ratio=0.5, max_recursion=None, auto_process=True):
+    def gen(self, num, cat=None, cat_group=None, preferred=None, preferred_ratio=0.5, max_recursion=None,
+            auto_process=True):
         """Generate ``num`` rules from category ``cat``, optionally specifying
         preferred category groups ``preferred`` that should be preferred at
         probability ``preferred_ratio`` over other randomly-chosen rule definitions.
@@ -410,7 +405,7 @@ class GramFuzzer(object):
                     "cat_group {!r} did not define a TOP_CAT variable"
                 )
             cat = self.cat_group_defaults[cat_group]
-            if not isinstance(cat, basestring):
+            if not isinstance(cat, str):
                 raise gramfuzz.errors.GramFuzzError(
                     "cat_group {!r}'s TOP_CAT variable was not a string"
                 )
@@ -434,7 +429,7 @@ class GramFuzzer(object):
         _maybe = rand.maybe
         _val = utils.val
 
-        keys = self.defs[cat].keys()
+        keys = list(self.defs[cat].keys())
 
         self._last_pref_keys = self._get_pref_keys(cat, preferred)
         # be sure to set this *after* fetching the pref keys (above^)
@@ -474,9 +469,9 @@ class GramFuzzer(object):
                 val_res = _val(v, pre)
             except errors.GramFuzzError as e:
                 raise
-                #total_errors.append(e)
-                #self.revert(info)
-                #continue
+                # total_errors.append(e)
+                # self.revert(info)
+                # continue
             except RuntimeError as e:
                 print("RUNTIME ERROR")
                 self.revert(info)
@@ -490,22 +485,22 @@ class GramFuzzer(object):
                 self.post_revert(cat, res, total_gend, num, info)
 
         return res
-    
+
     def pre_revert(self, info=None):
         """Signal to begin saving any changes that might need to be reverted
         """
         self._staged_defs = deque()
-    
+
     def post_revert(self, cat, res, total_num, num, info):
         """Commit any staged rule definition changes (rule generation went
         smoothly).
         """
         if self._staged_defs is None:
             return
-        for cat,def_name,def_value in self._staged_defs:
+        for cat, def_name, def_value in self._staged_defs:
             self.defs.setdefault(cat, {}).setdefault(def_name, deque()).append(def_value)
         self._staged_defs = None
-    
+
     def revert(self, info=None):
         """Revert after a single def errored during generate (throw away all
         staged rule definition changes)
