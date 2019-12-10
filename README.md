@@ -41,35 +41,17 @@ from pyjfuzz.core.pjf_configuration import PJFConfiguration
 from pyjfuzz.core.pjf_factory import PJFFactory
 from argparse import Namespace
 
-config = PJFConfiguration(argparse.Namespace(json={"test": ["1", 2, True]}, nologo=True, level=6, techniques="P"))
-fuzzer = PJFFactory(config)
+config = PJFConfiguration(Namespace(json={"test": ["1", 2, True]}, nologo=True, level=6, techniques="P"))
+# once a config object is defined you can access to config.techniques to view the selected techniques for your group
 # print("Techniques IDs: {0}".format(str(config.techniques)))
+# you can eventually modify them!
+# config.techniques = [2]
+# This way only attack number 2 (LFI Attack) will be performed!
+fuzzer = PJFFactory(config)
 while True:
     print(fuzzer.fuzzed)
 ```
 
-
-
-
-**Examples**
-
-Below some trivial example of how-to implement PyJFuzz powered program
-
-*simple_fuzzer.py*
-```python
-from argparse import Namespace
-from pyjfuzz.lib import *
-
-config = PJFConfiguration(Namespace(json={"test": ["1", 2, True]}, nologo=True, level=6))
-#print("Techniques IDs: {0}".format(str(config.techniques)))
-#print("Techniques IDs: {0}".format(str(config.techniques)))
-# you can eventually modify them!
-#config.techniques = [2]
-# This way only attack number 2 (LFI Attack) will be performed!
-fuzzer = PJFFactory(config)
-while True:
-    print fuzzer.fuzzed
-```
 
 
 **Configuration table**
