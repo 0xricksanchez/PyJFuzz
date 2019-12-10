@@ -23,7 +23,6 @@ SOFTWARE.
 """
 import json
 import sys
-import time
 
 from .errors import PJFInvalidType, PJFMissingArgument, PJFBaseException
 from .pjf_encoder import PJFEncoder
@@ -43,7 +42,8 @@ class PJFFactory(object):
         """
         Class that represent a JSON object
         """
-        self.logger = self.init_logger()
+        # Disable logging file
+        # self.logger = self.init_logger()
         if ["json", "json_file", "strong_fuzz", "parameters", "exclude_parameters", "url_encode", "indent",
             "utf8"] not in configuration:
             raise PJFMissingArgument("Some arguments are missing from PJFFactory object")
@@ -63,7 +63,8 @@ class PJFFactory(object):
                 self.json = other
             else:
                 self.json = json.dumps(other)
-        self.logger.debug("[{0}] - PJFFactory successfully initialized".format(time.strftime("%H:%M:%S")))
+        # Disable logging file
+        # self.logger.debug("[{0}] - PJFFactory successfully initialized".format(time.strftime("%H:%M:%S")))
 
     def __add__(self, other):
         """

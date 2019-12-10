@@ -4,6 +4,12 @@
  
 This fork of PyJFuzz was made python3 compatible with minimal effort
 
+**Changes**
+
+* 2to3 for (basic) python3 support
+* Disabled pjf.log file ..
+
+
 
 
 Installation
@@ -213,6 +219,19 @@ while True:
     <td>Random character attack</td>
   </tr>
 </table>
+
+
+```
+techniques = {
+                "C": [10, 5, 13],
+                "H": [9],
+                "P": [6, 2, 8],
+                "T": [11, 12],
+                "R": [14],
+                "S": [3, 1],
+                "X": [0, 4, 7]
+            }
+```
 
 Issues
 =====
