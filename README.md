@@ -1,66 +1,23 @@
-## Note: This fork of PyJFuzz was made python3 compatible
-
-
-[![LOGO](https://s30.postimg.org/iolw8xqn5/logo.png)](https://s30.postimg.org/iolw8xqn5/logo.png)
-=======
 **PyJFuzz** is a small, extensible and ready-to-use framework used to **fuzz JSON inputs**, such as mobile endpoint REST API, JSON implementation, Browsers, cli executable and much more.
 
-<table>
-    <tr>
-        <th>Version</th>
-        <td>
-           1.1.0
-        </td>
-    </tr>
-    <tr>
-        <th>Homepage</th>
-        <td><a href="http://www.mseclab.com/">http://www.mseclab.com/</a></td>
-    </tr>
-        <th>Github</th>
-        <td><a href="https://github.com/mseclab/PyJFuzz">https://github.com/mseclab/PyJFuzz</a></td>
-     <tr/>
-    <tr>
-       <th>Author</th>
-       <td><a href="http://www.dzonerzy.net">Daniele Linguaglossa</a> (<a href="http://twitter.com/dzonerzy">@dzonerzy</a>)</td>
-    </tr>
-    <tr>
-        <th>License</th>
-        <td>MIT - (see LICENSE file)</td>
-    </tr>
-</table>
+### Note:
+ 
+This fork of PyJFuzz was made python3 compatible with minimal effort
+
+
 
 Installation
 ============
 
-**Dependencies**
-
-In order to work PyJFuzz need some dependency, **bottle**,**netifaces**,**GitPython** and **gramfuzz**, you can install them from automatic **setup.py** installation.
-
-**Installation**
-
 You can install PyJFuzz with the following command
 ```{r, engine='bash', count_lines}
-git clone https://github.com/mseclab/PyJFuzz.git && cd PyJFuzz && sudo python setup.py install
+sudo -EH pip3 install gramfuzz bottle netifaces gitpython
+git clone https://github.com/0xricksanchez/PyJFuzz.git && cd PyJFuzz && sudo -EH python3 setup.py install
 ```
 
-Documentation and Examples
-==========================
+Usage:
+============
 
-**CLI tool**
-
-Once installed PyJFuzz will create both a python library and a command-line utility called **pjf** (screenshot below)
-
-[![MENU](https://s17.postimg.org/6gvbyvzpb/cmdline.png)](https://s17.postimg.org/6gvbyvzpb/cmdline.png)
-
-[![PJF](https://s16.postimg.org/rdq1iwwvp/cmdline2.png)](https://s16.postimg.org/rdq1iwwvp/cmdline2.png)
-
-**Library**
-
-PyJFuzz could also work as a library, you can import in your project like following
-
-```python
-from pyjfuzz.lib import *
-```
 **Classes**
 
 The available object/class are the following:
@@ -74,7 +31,25 @@ The available object/class are the following:
 - ***PJFMutation*** - Used by PJFFactory provide all the mutation used during fuzzing session
 - ***PJFExecutor*** - Provides an interface to interact with external process
 
-[![CLASSES](https://s4.postimg.org/7picu4y3h/lib.png)](https://s4.postimg.org/7picu4y3h/lib.png)
+
+**Examples**
+
+```python
+# simple_fuzzer
+
+from pyjfuzz.core.pjf_configuration import PJFConfiguration
+from pyjfuzz.core.pjf_factory import PJFFactory
+from argparse import Namespace
+
+config = PJFConfiguration(argparse.Namespace(json={"test": ["1", 2, True]}, nologo=True, level=6, techniques="P"))
+fuzzer = PJFFactory(config)
+# print("Techniques IDs: {0}".format(str(config.techniques)))
+while True:
+    print(fuzzer.fuzzed)
+```
+
+
+
 
 **Examples**
 
@@ -86,56 +61,16 @@ from argparse import Namespace
 from pyjfuzz.lib import *
 
 config = PJFConfiguration(Namespace(json={"test": ["1", 2, True]}, nologo=True, level=6))
-fuzzer = PJFFactory(config)
-while True:
-    print fuzzer.fuzzed
-```
-
-
-*custom_techniques.py*
-```python
-from argparse import Namespace
-from pyjfuzz.lib import *
-
-# Techniques may be defined by group , or by technique number
-# groups are CHTPRSX , to understand what they are , please run pyjfuzz with -h switch or look at the command line screenshot
-# This below will initalizate a config object which use only the P group attacks where P stay for Path Traversal
-config = PJFConfiguration(Namespace(json={"test": ["1", 2, True]}, nologo=True, level=6, techniques="P"))
-# once a config object is defined you can access to config.techniques to view the selected techniques for your group
-print("Techniques IDs: {0}".format(str(config.techniques)))
+#print("Techniques IDs: {0}".format(str(config.techniques)))
+#print("Techniques IDs: {0}".format(str(config.techniques)))
 # you can eventually modify them!
-config.techniques = [2]
+#config.techniques = [2]
 # This way only attack number 2 (LFI Attack) will be performed!
 fuzzer = PJFFactory(config)
 while True:
     print fuzzer.fuzzed
 ```
 
-*simple_server.py*
-```python
-from argparse import Namespace
-from pyjfuzz.lib import *
-
-config = PJFConfiguration(Namespace(json={"test": ["1", 2, True]}, nologo=True, level=6, debug=True, indent=True))
-PJFServer(config).run()
-
-```
-
-Sometimes you may need to modify standard non customizable settings such as HTTPS or HTTP server port, this can be done in the following way
-
-``` python
-from argparse import Namespace
-from pyjfuzz.lib import *
-
-config = PJFConfiguration(Namespace(json={"test": ["1", 2, True]}, nologo=True, level=6, indent=True))
-print config.ports["servers"]["HTTP_PORT"]   # 8080
-print config.ports["servers"]["HTTPS_PORT"]  # 8443
-print config.ports["servers"]["TCASE_PORT"]  # 8888
-config.ports["servers"]["HTTPS_PORT"] = 443  # Change HTTPS port to 443
-```
-**Remember**: *When changing default ports, you should always handle exception due to needed privileges!*
-
-Below a comprehensive list of all available settings / customization of PJFConfiguration object:
 
 **Configuration table**
 
@@ -297,31 +232,7 @@ Below a comprehensive list of all available settings / customization of PJFConfi
   </tr>
 </table>
 
-Screenshots
-===========
-
-Below some screenshot just to let you know what you should expect from PyJFuzz
-
-[![CLI](https://s18.postimg.org/qu5j9pw09/ext_fuzz.png)](https://s18.postimg.org/qu5j9pw09/ext_fuzz.png)
-
-[![CLI2](https://s11.postimg.org/qtgi9dro3/filefuzz.png)](https://s11.postimg.org/qtgi9dro3/filefuzz.png)
-
-[![CLI3](https://s15.postimg.org/7jn4ktkcb/processm.png)](https://s15.postimg.org/7jn4ktkcb/processm.png)
-
-Built-in tool
-===========
-PyJFuzz is shipped with a built-in tool called **PyJFuzz Web Fuzzer**, this tool will provide an automatic fuzzing console via HTTP and HTTPS server, it can be used to easly fuzz almost any web browser even when you can't control the process state!
-
-There are two switch used to launch this tool (--browser-auto and --fuzz-web), the first one perform automatic browser restart when a crash occur, the other one try to catch when a browser doesn't make requests anymore. Both of them always save the testcases, below some screenshots.
-
-[![FUZZ](https://s18.postimg.org/ulahts5bt/fuzzweb.png)](https://s18.postimg.org/ulahts5bt/fuzzweb.png)
-
-[![FUZZ2](https://s17.postimg.org/74s3qidrj/fuzzweb2.png)](https://s17.postimg.org/74s3qidrj/fuzzweb2.png)
-
-[![BROWSERAUTO](https://s18.postimg.org/j0t67tabt/auto.png)](https://s18.postimg.org/j0t67tabt/auto.png)
-
-[![BROWSERAUTO2](https://s15.postimg.org/qj2o5it2z/auto2.png)](https://s15.postimg.org/qj2o5it2z/auto2.png)
-Issue
+Issues
 =====
 
 Please send any issue here via GitHub I'll provide a fix as soon as possible.
@@ -336,9 +247,3 @@ Result
 - Stack base buffer overflow in frozen (https://github.com/cesanta/frozen/issues/14)
 - Memory corruption with custom EIP (https://github.com/cesanta/frozen/issues/15)
 
-End
-===
-
-Thanks for using PyJFuzz!
-
-***Happy Fuzzing*** from mseclab
